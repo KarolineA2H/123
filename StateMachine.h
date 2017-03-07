@@ -36,14 +36,10 @@ void sm_timer_handler();
 void sm_door_handler(); 
 
 //skal vi stoppe på denne etg. og sette motor retning til 0 
-void sm_order_in_Q_vs_floor_up();
-void sm_order_in_Q_vs_floor_down();
-
-//skal vi stoppe på denne etg. og sette motor retning til 0 
 void sm_order_in_Q_vs_current_floor();
 
 //skal skur av lyset på knapper når vi skal sletter bestillingen
-void sm_turn_lights_on_off_in_floor(int order_on_floor); 
+void sm_turn_lights_off_in_floor(int order_on_floor); 
 
 //sjekker og håndterer stoppknappen
 void sm_check_stop_button();
@@ -56,5 +52,14 @@ void sm_reset_all_button_lamps_delete_Q();
 
 //heisen står stille og venter på at den skal få et nytt oppdrag
 int sm_elev_on_standby(); 
+
+//ligger i main, bestemmer motor dir.
+void sm_elev_move_or_stop();
+
+// bestemmer motor state (UP/DOWN/STOP)
+void sm_drive_direction();
+
+void case_dirn_up();
+void case_dirn_down();
 
 #endif

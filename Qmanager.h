@@ -29,8 +29,5 @@ int qm_is_Q_empty();
 //det er en bestilling i køen 
 int qm_if_order_in_Q_at_current_floor(int floor);
 
-int qm_if_order_in_Q_at_floor_up(int floor);
-int qm_if_order_in_Q_at_floor_down(int floor);
-
 
 #endif
