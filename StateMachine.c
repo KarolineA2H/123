@@ -1,30 +1,19 @@
 #include "StateMachine.h"
 
-int current_floor; 
-
-enum Floor{
-	GROUND_FLOOR = 0,
-	FIRST = 1,
-	SECOND = 2,
-	TOP_FLOOR = 3,
-	NOT_ON_FLOOR = -1//The elevator is between two floors  
-};
-
+static int current_floor; 
 
 //kan ikke være mellom etg 
-void sm_set_current_floor(int floor_signal){
+//må kjøres relativt ofte for å kunne få med seg at etasjen skal/har skiftet
+void sm_set_current_floor_and_indicator(){
 	if (elev_get_floor_sensor_signal() != NOT_ON_FLOOR){
-	current_floor = elev_get_floor_sensor_signal();
-	}	
+		current_floor = elev_get_floor_sensor_signal();
+		elev_set_floor_indicator(sm_get_current_floor()); 
+	}
 }
+
 int sm_get_current_floor(){
 	return current_floor; 
 }
-
-void sm_set_floor_indicator(int floor_signal){
-	///HVA SKAL DET VÆRE HER? 
-}
-
 
 //sjekker om en knapp er trykket og 
 //legger til i kø og setter på lys, hvis en er trykket
@@ -43,8 +32,8 @@ void sm_check_button_pressed_up(){
 		qm_set_order_in_Q_up(SECOND, 1);
 		elev_set_button_lamp(BUTTON_CALL_UP, SECOND, 1);
 	}
-
 }
+
 void sm_check_button_pressed_down(){
 	qm_set_order_in_Q_down(GROUND_FLOOR, 0);
 
@@ -97,16 +86,19 @@ void sm_timer_handler(){
 	}
 }
 
-//setter lyset på ved 1. Vis man vil ha døren åpen 
-void sm_door_handler(int bool_value){
-	elev_set_door_open_lamp(bool_value); 
+//åpner døren i 3 sekunder og så lukker døren 
+void sm_door_handler(){
+	elev_set_door_open_lamp(1); 
+	sm_timer_handler(); 
+	elev_set_door_open_lamp(0); 
 }
 
 //skal vi stoppe på denne etg. og sette motor retning til 0 
-void sm_order_in_Q_vs_current_floor(int current_floor){
-	if(qm_check_current_order_floor_and_ord(current_floor)){
+void sm_order_in_Q_vs_current_floor(){
+	if(qm_if_order_in_Q_at_current_floor(current_floor)){
 		//setter motor dir til STOP
 		mm_set_motor_dir(DIRN_STOP); 
+		qm_delete_executed_order(current_floor); //skrur av lystene 
 	}
 }
 
@@ -114,7 +106,17 @@ void sm_order_in_Q_vs_current_floor(int current_floor){
 void sm_turn_lights_off_in_floor(int order_on_floor){
 	//HVOR VAR DET I DEN GAMLE KODEN VI SKRUDDE AV LYSET NÅR EN BESTILING VAR FERDIG
 	qm_delete_executed_order(order_on_floor); 
+	//skru av lyset i elev 
+	elev_set_button_lamp(BUTTON_CALL_UP, order_on_floor, 0);
+	elev_set_button_lamp(BUTTON_CALL_DOWN, order_on_floor, 0);
+	elev_set_button_lamp(BUTTON_COMMAND, order_on_floor, 0);
 } 
+
+void sm_check_stop_button(){
+	if (elev_get_stop_signal() == 1) {
+		sm_stop_button_activated_ignore_orders();
+	}
+}
 
 //stopp knapp aktivert
 void sm_stop_button_activated_ignore_orders(){
@@ -124,12 +126,14 @@ void sm_stop_button_activated_ignore_orders(){
 	elev_set_motor_direction(DIRN_STOP);
 	//sletter køen 
 	qm_delete_Q();
+	sm_reset_all_button_lamps_delete_Q();
 	//heisen står mellom to etg 	
-	if (elev_get_floor_sensor_signal()== -1) {
-		sm_door_handler(0); // sikrer seg at døren ikke er åpen 
+	if (elev_get_floor_sensor_signal() == -1) {
+
 		while (elev_get_stop_signal() == 1) {
 			continue;
 		}
+		elev_set_stop_lamp(0); 
 	}
 	else {
 		//stopp knappen ble aktivert når vi er en etg 
@@ -137,19 +141,35 @@ void sm_stop_button_activated_ignore_orders(){
 		while (elev_get_stop_signal() == 1) {
 			continue;
 		}
-		//døren er åpen i tre sekunder etter at vi har sluppet stop knappen 
+		elev_set_stop_lamp(0); 
+		//døren er åpen i tre sekunder etter at vi har sluppet stop knappen men vi kan ta i mot ordere 
 		sm_timer_handler(); 
+		elev_set_door_open_lamp(0);
 	} 
-	elev_set_stop_lamp(0); 
 }
 
 int sm_elev_on_standby(){
-	if (qm_if_Q_is_empty()){
+	if (qm_is_Q_empty() == 1){
+		//sette motoren til å stoppe
 		return 1; 
 	}
 	else{
-		printf("%s\n", "Køen er ikke tom" );
 		return 0; 
 	}
 }
 
+void sm_reset_all_button_lamps_delete_Q(){
+	qm_delete_Q(); 
+
+	int i;
+    // Zero all floor button lamps
+    for (i = 0; i < N_FLOORS; ++i) { // burde henne ha hver implimentert i++ 
+        if (i != 0)
+            elev_set_button_lamp(BUTTON_CALL_DOWN, i, 0);
+
+        if (i != N_FLOORS - 1)
+            elev_set_button_lamp(BUTTON_CALL_UP, i, 0);
+
+        elev_set_button_lamp(BUTTON_COMMAND, i, 0);
+    }
+}
