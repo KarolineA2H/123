@@ -6,7 +6,7 @@ void mm_set_motor_dir (int motor_direction){
 	elev_set_motor_direction(motor_dir); 
 }
 
-int mm_get_motot_dir(){
+int mm_get_motor_dir(){
 	return motor_dir; 
 } 
 

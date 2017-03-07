@@ -24,8 +24,13 @@ void qm_delete_Q();
 void qm_delete_executed_order(int floor);
 
 //returnerer 1 om vi ikke har noe bestillinger i køen
-int qm_is_Q_empty();  
+int qm_is_Q_empty(); 
+
 //det er en bestilling i køen 
 int qm_if_order_in_Q_at_current_floor(int floor);
+
+int qm_if_order_in_Q_at_floor_up(int floor);
+int qm_if_order_in_Q_at_floor_down(int floor);
+
 
 #endif

@@ -12,9 +12,18 @@ int main() {
     while (1) {
         sm_set_current_floor_and_indicator();
 
+        //ha en funksjon som sjekker om vi skal stoppe i en etasje
+        //må legge inn noe for at den ikke skal stoppe i en etasje som skal motsatt vei
+
+
+
         //kan puttes i en funksojn med en else, der elsen kjører dersom det er noe i køen.
         //det inni elsen bestemmer hvilken vei heisen skal begynne å kjøre etter å ha stoppet.
         if(sm_elev_on_standby()){
+            //har satt motor dir til STOP i sm_elev_on_standby
+        }
+        else { //vet at køen ikke er tom
+            //masse dritt
         }
 
         //kan puttes inni en egen funksjon for knappetrykk.

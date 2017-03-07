@@ -65,8 +65,22 @@ int qm_is_Q_empty(){
 }
 
 //det er en bestilling i køen 
-//returnerer 1 om vi har noe i bestillingen 
+//returnerer 1 om vi har noe i bestillingen
 int qm_if_order_in_Q_at_current_floor(int floor){
-	 if (qm_get_order_in_Q_up(floor) || qm_get_order_in_Q_command(floor) || qm_get_order_in_Q_down(floor)) {return 1;}
+	 if (qm_get_order_in_Q_up(floor) || qm_get_order_in_Q_down(floor) || qm_get_order_in_Q_command(floor)) {return 1;}
+    else {return 0;}
+}
+
+//det er en bestilling i køen 
+//returnerer 1 om vi har noe i bestillingen 
+int qm_if_order_in_Q_at_floor_up(int floor){
+	 if (qm_get_order_in_Q_up(floor) || qm_get_order_in_Q_command(floor)) {return 1;}
+    else {return 0;}
+}
+
+//det er en bestilling i køen 
+//returnerer 1 om vi har noe i bestillingen 
+int qm_if_order_in_Q_at_floor_down(int floor){
+	 if (qm_get_order_in_Q_down(floor) || qm_get_order_in_Q_command(floor)) {return 1;}
     else {return 0;}
 }

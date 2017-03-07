@@ -21,6 +21,7 @@ void elev_initialize() {
 	elev_set_motor_direction(DIRN_STOP);
 	mm_set_motor_dir(DIRN_STOP);
 	mm_set_last_moving_motor_dir(DIRN_DOWN);
-	printf("setter motor direction til NED\n");
+	printf("setter last_motor direction til NED\n");
 
+    elev_set_floor_indicator(elev_get_floor_sensor_signal());
 }

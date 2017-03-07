@@ -36,7 +36,11 @@ void sm_timer_handler();
 void sm_door_handler(); 
 
 //skal vi stoppe på denne etg. og sette motor retning til 0 
-void sm_order_in_Q_vs_current_floor(); 
+void sm_order_in_Q_vs_floor_up();
+void sm_order_in_Q_vs_floor_down();
+
+//skal vi stoppe på denne etg. og sette motor retning til 0 
+void sm_order_in_Q_vs_current_floor();
 
 //skal skur av lyset på knapper når vi skal sletter bestillingen
 void sm_turn_lights_on_off_in_floor(int order_on_floor); 

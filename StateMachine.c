@@ -94,6 +94,19 @@ void sm_door_handler(){
 }
 
 //skal vi stoppe på denne etg. og sette motor retning til 0 
+void sm_order_in_Q_vs_floor_up(int floor_to_check){
+	if(qm_if_order_in_Q_at_floor_up(floor_to_check)){
+		//noe
+	}
+}
+
+void sm_order_in_Q_vs_floor_down(int floor_to_check){
+	if(qm_if_order_in_Q_at_floor_down(floor_to_check)){
+		//noe
+	}
+}
+
+
 void sm_order_in_Q_vs_current_floor(){
 	if(qm_if_order_in_Q_at_current_floor(current_floor)){
 		//setter motor dir til STOP
@@ -101,6 +114,7 @@ void sm_order_in_Q_vs_current_floor(){
 		qm_delete_executed_order(current_floor); //skrur av lystene 
 	}
 }
+
 
 //skal skur av lyset på knapper når vi skal sletter bestillinen ??
 void sm_turn_lights_off_in_floor(int order_on_floor){
@@ -151,7 +165,8 @@ void sm_stop_button_activated_ignore_orders(){
 int sm_elev_on_standby(){
 	if (qm_is_Q_empty() == 1){
 		//sette motoren til å stoppe
-		return 1; 
+		mm_set_motor_dir(DIRN_STOP); 
+		return 1;
 	}
 	else{
 		return 0; 
@@ -172,4 +187,8 @@ void sm_reset_all_button_lamps_delete_Q(){
 
         elev_set_button_lamp(BUTTON_COMMAND, i, 0);
     }
+}
+
+
+void sm_check_floors_for_orders_over_elev(){
 }
