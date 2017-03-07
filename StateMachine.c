@@ -1,18 +1,23 @@
 #include "StateMachine.h"
 
 static int current_floor; 
-
+static int previous_floor;  
 //kan ikke være mellom etg 
 //må kjøres relativt ofte for å kunne få med seg at etasjen skal/har skiftet
 void sm_set_current_floor_and_indicator(){
 	if (elev_get_floor_sensor_signal() != NOT_ON_FLOOR){
 		current_floor = elev_get_floor_sensor_signal();
-		elev_set_floor_indicator(sm_get_current_floor()); 
+		elev_set_floor_indicator(current_floor); 
+		previous_floor = current_floor; 
 	}
 }
 
 int sm_get_current_floor(){
 	return current_floor; 
+}
+
+int sm_get_previous_floor(){
+	return previous_floor; 
 }
 
 //sjekker om en knapp er trykket og 
@@ -94,23 +99,81 @@ void sm_door_handler(){
 }
 
 void sm_order_in_Q_vs_current_floor(){
-	if(qm_if_order_in_Q_at_current_floor(current_floor)){
-		//setter motor dir til STOP
-		mm_set_motor_dir(DIRN_STOP); 
-		qm_delete_executed_order(current_floor);
-		sm_turn_lights_off_in_floor(current_floor);
+	int floor = elev_get_floor_sensor_signal();
+	printf("%d\n", floor);
+	if (floor != -1) {
+		if((qm_get_order_in_Q_up(current_floor) || qm_get_order_in_Q_command(current_floor)) && mm_get_motor_dir() == DIRN_UP) {
+			sm_when_stopping_at_floor();
+		}
+		if((qm_get_order_in_Q_down(current_floor) || qm_get_order_in_Q_command(current_floor)) && mm_get_motor_dir() == DIRN_DOWN ) {
+			sm_when_stopping_at_floor();
+		}
+		if(sm_check_Q_up_for_orders() == 0 && sm_check_Q_command_for_orders() == 0) { //for kjører nedover
+			if (qm_get_order_in_Q_down(floor) == 1) {
+				sm_when_stopping_at_floor();
+			}
+		}
+		if(sm_check_Q_down_for_orders()== 0 && sm_check_Q_command_for_orders() == 0) { //for kjører nedover
+			if (qm_get_order_in_Q_up(floor) == 1) {
+				sm_when_stopping_at_floor();
+			}
+		}
 	}
 }
 
-//skal skur av lyset på knapper når vi skal sletter bestillinen ??
+//returnerer 1 hvis det er en order 
+int sm_check_Q_up_for_orders(){
+	for (int i = current_floor; i < 4; i++) {
+		if (qm_get_order_in_Q_up(i) == 1) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int sm_check_Q_down_for_orders(){
+	for (int i = current_floor; i > -1; i--) {
+		if (qm_get_order_in_Q_down(i) == 1) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int sm_check_Q_command_for_orders(){
+	if (mm_get_motor_dir() == -1){
+		for (int i = current_floor; i > -1; i--) {
+			if (qm_get_order_in_Q_command(i) == 1) {
+				return 1;
+			}
+		}
+	}
+	if (mm_get_motor_dir() == 1) {
+		for (int i = current_floor; i < 4; i++) {
+			if (qm_get_order_in_Q_command(i) == 1) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+void sm_when_stopping_at_floor() {
+	mm_set_motor_dir(DIRN_STOP); 
+	qm_delete_executed_order(current_floor);
+	sm_turn_lights_off_in_floor(current_floor);
+	sm_door_handler();
+}
+
 void sm_turn_lights_off_in_floor(int order_on_floor){
-	//HVOR VAR DET I DEN GAMLE KODEN VI SKRUDDE AV LYSET NÅR EN BESTILING VAR FERDIG
-	//qm_delete_executed_order(order_on_floor); 
-	//skru av lyset i elev 
-	elev_set_button_lamp(BUTTON_CALL_UP, order_on_floor, 0);
-	elev_set_button_lamp(BUTTON_CALL_DOWN, order_on_floor, 0);
+	if (order_on_floor != 0) {
+		elev_set_button_lamp(BUTTON_CALL_DOWN, order_on_floor, 0);
+	}
+	if (order_on_floor != 3){
+		elev_set_button_lamp(BUTTON_CALL_UP, order_on_floor, 0);
+	}	
 	elev_set_button_lamp(BUTTON_COMMAND, order_on_floor, 0);
-} 
+}
 
 void sm_check_stop_button(){
 	if (elev_get_stop_signal() == 1) {
@@ -153,7 +216,7 @@ void sm_reset_all_button_lamps_delete_Q(){
 
 	int i;
     // Zero all floor button lamps
-    for (i = 0; i < N_FLOORS; ++i) { // burde henne ha hver implimentert i++ 
+    for (i = 0; i < N_FLOORS; i++) { // burde henne ha hver implimentert i++ 
         if (i != 0)
             elev_set_button_lamp(BUTTON_CALL_DOWN, i, 0);
 
@@ -167,6 +230,7 @@ void sm_reset_all_button_lamps_delete_Q(){
 int sm_elev_on_standby(){
 	if (qm_is_Q_empty() == 1){
 		//sette motoren til å stoppe
+
 		mm_set_motor_dir(DIRN_STOP); 
 		return 1;
 	}
@@ -177,15 +241,44 @@ int sm_elev_on_standby(){
 
 void sm_elev_move_or_stop(){
 	
-	if (sm_elev_on_standby()) {	
-		printf("Det er ikke noe i Q\n");}
+	if (sm_elev_on_standby()) {	}
+
 	else {
 		if (elev_get_floor_sensor_signal() != -1) {
 			sm_drive_direction();
 		}
-		else {}
+		else {//Vi er mellom to etg of køen er ikke tom dvs elev_get_floor_sevnsor_signal=-1
+			//sjekke om det er noen ordre
+
+			int DIR = mm_get_last_moving_motor_dir();
+			//lage case
+			if(DIR == DIRN_UP){
+			//Skjekker ordre over forrige etg
+				for (int j = previous_floor; j < 4; j++){
+					if (qm_get_order_in_Q_up(j) || qm_get_order_in_Q_down(j) || qm_get_order_in_Q_command(j)) {
+						mm_set_motor_dir(DIRN_UP);
+						//mm_set_last_moving_motor_dir(DIRN_UP);
+						//smth_in_Q_over = 1;
+						break;
+					}
+				}
+			}
+
+			if(DIR == DIRN_DOWN){
+			//skjekker ordre under forrige etg 
+				for (int i = previous_floor ; i > -1; i--){
+					if (qm_get_order_in_Q_up(i) || qm_get_order_in_Q_down(i) || qm_get_order_in_Q_command(i)) {
+						mm_set_motor_dir(DIRN_DOWN);
+						//mm_set_last_moving_motor_dir(DIRN_DOWN);
+						//smth_in_Q_under = 1;
+						break;
+					}
+				}
+			}
+		}
 	}
 }
+
 
 void sm_drive_direction(){
 
@@ -212,10 +305,8 @@ void case_dirn_up() {
 	if (floor != -1){
 		int smth_in_Q_over = 0;
 
-		printf("case DIRN_UP\n");
 		for (int j = floor; j < 4; j++){
 			if (qm_get_order_in_Q_up(j) || qm_get_order_in_Q_down(j) || qm_get_order_in_Q_command(j)) {
-				printf("funnet en order over \n");
 				mm_set_motor_dir(DIRN_UP);
 				//mm_set_last_moving_motor_dir(DIRN_UP);
 				smth_in_Q_over = 1;
@@ -223,7 +314,6 @@ void case_dirn_up() {
 			}
 		}
 		if (smth_in_Q_over == 0){
-			printf("Er ingen bestilling over, KJØR NED\n");
 			mm_set_motor_dir(DIRN_DOWN);
 			mm_set_last_moving_motor_dir(DIRN_DOWN);
 		}
@@ -239,7 +329,6 @@ void case_dirn_down(){
 
 		for (int i = floor ; i > -1; i--){
 			if (qm_get_order_in_Q_up(i) || qm_get_order_in_Q_down(i) || qm_get_order_in_Q_command(i)) {
-				printf("funnet en order under \n");
 				mm_set_motor_dir(DIRN_DOWN);
 				//mm_set_last_moving_motor_dir(DIRN_DOWN);
 				smth_in_Q_under = 1;
@@ -249,7 +338,6 @@ void case_dirn_down(){
 		
 		if (smth_in_Q_under == 0) {
 			//vet vi skal oppover 
-			printf("Er ingen bestilling under. vi kjører opp\n" );
 			mm_set_motor_dir(DIRN_UP);
 			mm_set_last_moving_motor_dir(DIRN_UP);
 		}

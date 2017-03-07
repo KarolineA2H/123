@@ -21,6 +21,10 @@ enum Floor{
 void sm_set_current_floor_and_indicator(); //kan ikke være -1 (NOT_ON_FLOOR)
 int sm_get_current_floor(); 
 
+
+int sm_get_previous_floor();
+
+
 //skjekker alle type bestillingsknapper
 void sm_check_button_pressed_up(); 
 void sm_check_button_pressed_down(); 
@@ -37,6 +41,12 @@ void sm_door_handler();
 
 //skal vi stoppe på denne etg. og sette motor retning til 0 
 void sm_order_in_Q_vs_current_floor();
+
+int sm_check_Q_command_for_orders();
+int sm_check_Q_down_for_orders();
+int sm_check_Q_up_for_orders();
+
+void sm_when_stopping_at_floor();
 
 //skal skur av lyset på knapper når vi skal sletter bestillingen
 void sm_turn_lights_off_in_floor(int order_on_floor); 
