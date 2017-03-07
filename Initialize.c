@@ -19,13 +19,7 @@ void elev_initialize() {
 	}
 
 	mm_set_motor_dir(DIRN_STOP);
-
 	mm_set_last_moving_motor_dir(DIRN_DOWN);
-	
-	int dummy; 
-	dummy= mm_get_last_moving_motor_dir(); 
-	printf("%d\n", dummy );
-	printf("setter last_motor direction til NED\n");
 
     elev_set_floor_indicator(elev_get_floor_sensor_signal());
 }

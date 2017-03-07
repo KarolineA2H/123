@@ -11,7 +11,6 @@ static int queue_down[4] = {0}; //plass for 1. etg finnes ikke som kan
 static int queue_command[4]={0};  
 
 
-
 void qm_set_order_in_Q_up (int floor, int bool_value){
 	queue_up[floor] = bool_value;
 }
@@ -52,7 +51,6 @@ void qm_delete_executed_order(int floor){
 }
 
 //returnerer 1 om vi ikke har noe bestillinger i køen
-//smør på flesk??
 int qm_is_Q_empty(){
 	int x;
 	for(int i =0; i<4; i++){

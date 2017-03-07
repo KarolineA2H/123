@@ -264,15 +264,6 @@ void sm_elev_move_or_stop(){
 				}
 				else{
 					sm_drive_direction_between_floors();
-					/*
-					for (int j = previous_floor+1; j < 4; j++){
-						if (qm_get_order_in_Q_up(j) || qm_get_order_in_Q_down(j) || qm_get_order_in_Q_command(j)) {
-							mm_set_motor_dir(DIRN_UP);
-							//mm_set_last_moving_motor_dir(DIRN_UP);
-							//smth_in_Q_over = 1;
-							break;
-						}
-					}*/
 				}
 			}
 			else if(DIR == DIRN_DOWN){
@@ -283,16 +274,7 @@ void sm_elev_move_or_stop(){
 					printf("KOM HIT til DRIN DOWN \n");
 				}
 				else {	
-					sm_drive_direction_between_floors();				/*			
-					for (int i = previous_floor-1 ; i > -1; i--){
-						if (qm_get_order_in_Q_up(i) || qm_get_order_in_Q_down(i) || qm_get_order_in_Q_command(i)) {
-							mm_set_motor_dir(DIRN_DOWN);
-							//mm_set_last_moving_motor_dir(DIRN_DOWN);
-							//smth_in_Q_under = 1;
-							break;
-						}
-					}
-					*/
+					sm_drive_direction_between_floors();
 				}
 			}
 			stop_button_pressed = 0;
@@ -300,7 +282,6 @@ void sm_elev_move_or_stop(){
 		else {}
 	}
 }
-
 
 void sm_drive_direction(){
 
