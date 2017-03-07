@@ -2,7 +2,7 @@
 
 static int current_floor; 
 static int previous_floor;  
-int stop_button_pressed;
+static int stop_button_pressed;
 
 //kan ikke være mellom etg 
 //må kjøres relativt ofte for å kunne få med seg at etasjen skal/har skiftet
