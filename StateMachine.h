@@ -72,4 +72,9 @@ void sm_drive_direction();
 void case_dirn_up();
 void case_dirn_down();
 
+void sm_drive_direction_between_floors();
+void case_dirn_up_between_floors();
+void case_dirn_down_between_floors();
+
+
 #endif
