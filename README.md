@@ -1,6 +1,8 @@
 # 123
 
+!!! SE HER !!!!
 
 Kommentarer 
 - bruker noen ganger ekstra lang tid i etasjer. Vet ikke hvordan vi trigger det
-- må gå gjennom alle filer og oversette kommentarer og slette unødvendig kode og kommentarer
+- Mangler å gå gjennom StateMachine.c og main.c og gå gjennom kommentarer ol.
+- Skrive litt i README filen som forklarer heisen.
