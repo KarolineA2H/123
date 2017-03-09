@@ -4,7 +4,7 @@
 #include "MotorManager.h"
 #include "elev.h"
 
-//Halla
+
 void elev_initialize() {
     if (!elev_init()) {
         printf("Unable to initialize elevator hardware!\n");
@@ -13,8 +13,7 @@ void elev_initialize() {
 	if (elev_get_floor_sensor_signal() == -1) {
 		elev_set_motor_direction(DIRN_DOWN);
 		mm_set_last_moving_motor_dir(DIRN_DOWN);
-
-		printf("motor sensor signal = -1\n");
+		
 		while (elev_get_floor_sensor_signal() == -1) {}
 	}
 
