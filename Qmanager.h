@@ -5,28 +5,64 @@
 #include <stdio.h>
 #include "elev.h" //vil ikke ha denne her. er pga for å stoppe i en etg 
 
-
-
-// bool_value is the value in the array, representing if the 
-// elevator has an order there or not
+/*
+Sets the element, indicated by 'floor', in the up-queue to 'bool_value'.
+Bool_value equal to 1 means that there is an order at 'floor'.
+The up-queue representes the BUTTON_CALL_UP buttons.
+*/
 void qm_set_order_in_Q_up (int floor, int bool_value);
+
+/*
+Sets the element, indicated by 'floor', in the down-queue to 'bool_value'.
+Bool_value equal to 1 means that there is an order at 'floor'.
+The up-queue representes the BUTTON_CALL_DOWN buttons.
+*/
 void qm_set_order_in_Q_down(int floor, int bool_value); 
+
+/*
+Sets the element, indicated by 'floor', in the command-queue to 'bool_value'.
+Bool_value equal to 1 means that there is an order at 'floor'.
+The up-queue representes the BUTTON_COMMAND buttons.
+*/
 void qm_set_order_in_Q_command(int floor, int bool_value); 
 
+/*
+This function handles the up-queue array.
+Returns the value stored in the element, indicated by 'floor'.
+*/
 int qm_get_order_in_Q_up( int floor); 
+
+/*
+This function handles the down-queue array.
+Returns the value stored in the element, indicated by 'floor'.
+*/
 int qm_get_order_in_Q_down( int floor); 
+
+/*
+This function handles thecommand-queue array.
+Returns the value stored in the element, indicated by 'floor'.
+*/
 int qm_get_order_in_Q_command(int floor); 
 
-//sletter alle bestillingene i køen 
+/*
+Deletes all the elevators orders. Sets all elements in all three queue arrays to 0.
+*/
 void qm_delete_Q(); 
 
-//sletter bestillingen fra køen
+/*
+Deletes the order in all three queues. 
+Sets the value stored in the element indicated by 'floor' to 0 
+*/
 void qm_delete_executed_order(int floor);
 
-//returnerer 1 om vi ikke har noe bestillinger i køen
+/*
+Returns 0 if there are no orders in any of the queues.
+*/
 int qm_is_Q_empty(); 
 
-//det er en bestilling i køen 
+/*
+Returns 1 if there is an order at 'floor', 0 if not.
+*/
 int qm_if_order_in_Q_at_current_floor(int floor);
 
 
