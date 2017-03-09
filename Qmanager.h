@@ -3,7 +3,6 @@
 #define QueueManager
 
 #include <stdio.h>
-#include "elev.h" //vil ikke ha denne her. er pga for å stoppe i en etg 
 
 /*
 Sets the element, indicated by 'floor', in the up-queue to 'bool_value'.
