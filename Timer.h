@@ -1,18 +1,23 @@
 #ifndef TimerHFile
 #define TimerHFile
 
-
 #include <stdio.h>
 #include <sys/time.h>
 
-
-
-// utlevert funksjon som henter ant sekunder siden 1.jan 1970
+/*
+Function given for an earlier Linux and C-lab
+Returns the number of seconds passed since 1. January 1970.
+*/
 double t_get_wall_time();
 
-//starter timeren, setter initial_time lik get_wall_time()
+/*
+Set the static variable time_stamp to value returned by get_wall_time()
+*/
 void t_start_timer();
 
-//Returnerer 1 hvis det har gått 3 sekunder, og 0 ellers
+/*
+Checks if 3 seconds have passed and returns 1 if it has, retunrs 0 if not.
+*/
 int t_check_timer();
+
 #endif
