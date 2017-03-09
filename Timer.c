@@ -13,11 +13,6 @@ void t_start_timer(){
 }
 
 int t_check_timer(){
-	
-	if (t_get_wall_time()- time_Stamp >= 3){
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	if (t_get_wall_time()- time_Stamp >= 3) {return 1;}
+	else {return 0;}
 }
