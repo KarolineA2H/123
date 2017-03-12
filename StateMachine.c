@@ -42,7 +42,7 @@ void sm_check_button_pressed_up(){
 }
 
 void sm_check_button_pressed_down(){
-	qm_set_order_in_Q_down(GROUND_FLOOR, 0);// Not a physical button
+	qm_set_order_in_Q_down(GROUND_FLOOR, 0); // Not a physical button
 
 	if (elev_get_button_signal(BUTTON_CALL_DOWN, FIRST) == 1) {
 		qm_set_order_in_Q_down(FIRST, 1);
@@ -101,24 +101,25 @@ void sm_door_handler(){
 
 void sm_order_in_Q_vs_current_floor(){
 	int floor = elev_get_floor_sensor_signal();
-	//If the elevator is at a floor 
+	// If the elevator is at a floor 
 	if (floor != -1) {
-		//Check if it is an order an anny of the Q matches the current floor and motor direction 
+		// Check if there is an order in any of the queues at the current floor and motor direction is DIRN_UP
 		if((qm_get_order_in_Q_up(current_floor) || qm_get_order_in_Q_command(current_floor)) && mm_get_motor_dir() == DIRN_UP) {
 			sm_when_stopping_at_floor();
 		}
+		// Check if there is an order in any of the queues at the current floor and motor direction is DIRN_DOWN
 		if((qm_get_order_in_Q_down(current_floor) || qm_get_order_in_Q_command(current_floor)) && mm_get_motor_dir() == DIRN_DOWN ) {
 			sm_when_stopping_at_floor();
 		}
-		
-		//If it is a order that wants to go down 
+
+		// If there are no orders for going further up, check the down queue for orders at current floor
 		if(sm_check_Q_up_for_orders() == 0 && sm_check_Q_command_for_orders() == 0) { 
 			if (qm_get_order_in_Q_down(floor) == 1) {
 				sm_when_stopping_at_floor();
 			}
 		}
-		//If it is a order that wants to go up 
-		if(sm_check_Q_down_for_orders()== 0 && sm_check_Q_command_for_orders() == 0) { //for kjører nedover
+		// If there are no orders for going further down, check the up queue for orders at current floor
+		if(sm_check_Q_down_for_orders()== 0 && sm_check_Q_command_for_orders() == 0) { 
 			if (qm_get_order_in_Q_up(floor) == 1) {
 				sm_when_stopping_at_floor();
 			}
@@ -163,9 +164,6 @@ int sm_check_Q_up_for_orders(){
 	return 0;
 }
 
-
-
-
 void sm_when_stopping_at_floor() {
 	mm_set_motor_dir(DIRN_STOP); 
 	qm_delete_executed_order(current_floor);
@@ -190,9 +188,8 @@ void sm_check_stop_button(){
 	}
 }
 
-
 void sm_stop_button_activated_ignore_orders(){ 
-	elev_set_stop_lamp(1); //Turn the stop-button on 
+	elev_set_stop_lamp(1); //Turn the stop-button lamp on 
 	elev_set_motor_direction(DIRN_STOP);
 	sm_reset_all_button_lamps_delete_Q();
 	
@@ -209,8 +206,8 @@ void sm_stop_button_activated_ignore_orders(){
 			continue;
 		}
 		elev_set_stop_lamp(0); //Turn the stop-button off 
-		sm_timer_handler(); //Count to tre and check the ordering buttons 
-		elev_set_door_open_lamp(0); //Turn the door lamp of 
+		sm_timer_handler(); //Count three seconds and simultaneously check the ordering buttons 
+		elev_set_door_open_lamp(0); //Turn the door lamp off
 	} 
 }
 
@@ -240,14 +237,13 @@ int sm_elev_on_standby(){
 }
 
 void sm_elev_move_or_stop(){
-	if (sm_elev_on_standby()) {} //The Q is empty, the moror dir =DRIN STOP
+	if (sm_elev_on_standby()) {} // The Q is empty and the motor direction = DRIN STOP
 
 	else {
-		if (elev_get_floor_sensor_signal() != -1) {//If the elevator is on a floor 
+		if (elev_get_floor_sensor_signal() != -1) { // If the elevator is at a floor 
 			sm_drive_direction();
 		}
-		else if(stop_button_pressed == 1){//It the elevator is between to floors, and the stop button is activated 
-
+		else if(stop_button_pressed == 1){ //If the elevator is between to floors, and the stop button has been activated 
 			int DIR = mm_get_last_moving_motor_dir();
 
 			if(DIR == DIRN_UP ){
@@ -270,7 +266,7 @@ void sm_elev_move_or_stop(){
 					sm_drive_direction_between_floors();
 				}
 			}
-			//The stop- button case is handeled 
+			//The stop-button case is handeled
 			stop_button_pressed = 0;
 		}
 		else {}
@@ -300,7 +296,7 @@ void case_dirn_up() {
 	int floor = elev_get_floor_sensor_signal(); 
 
 	if (floor != -1){
-		int smth_in_Q_over = 0;//variabel; something in the  
+		int smth_in_Q_over = 0; //variable; keeps track of if there is an order in any of the queues above or not 
 
 		for (int j = floor; j < 4; j++){ //Check if it is some orders over the elevator 
 			if (qm_get_order_in_Q_up(j) || qm_get_order_in_Q_down(j) || qm_get_order_in_Q_command(j)) {
@@ -309,7 +305,7 @@ void case_dirn_up() {
 				break;
 			}
 		}
-		if (smth_in_Q_over == 0){//Know there is a order under the elev   
+		if (smth_in_Q_over == 0){ //there were no orders above 
 			mm_set_motor_dir(DIRN_DOWN);
 			mm_set_last_moving_motor_dir(DIRN_DOWN);
 		}
@@ -321,7 +317,7 @@ void case_dirn_down(){
 	int floor = elev_get_floor_sensor_signal(); 
 
 	if (floor != -1){
-		int smth_in_Q_under = 0;//variabel; something in the 
+		int smth_in_Q_under = 0; //variable; keeps track of if there is an order in any of the queues below or not 
 
 		for (int i = floor ; i > -1; i--){//Check if it is some orders over the elevator 
 			if (qm_get_order_in_Q_up(i) || qm_get_order_in_Q_down(i) || qm_get_order_in_Q_command(i)) {
@@ -331,7 +327,7 @@ void case_dirn_down(){
 			}
 		}
 		
-		if (smth_in_Q_under == 0) { //Know there is a order over the elev  
+		if (smth_in_Q_under == 0) { //there were no orders below
 			mm_set_motor_dir(DIRN_UP);
 			mm_set_last_moving_motor_dir(DIRN_UP);
 		}
@@ -361,9 +357,9 @@ void sm_drive_direction_between_floors(){
 }
 
 void case_dirn_up_between_floors() {
-	int smth_in_Q_over = 0;	//variabel; something in the Q 
+	int smth_in_Q_over = 0;	//variable; keeps track of if there are any orders in any of the queues above
 		
-	for (int j = previous_floor+1; j < 4; j++){//Check if it is some orders over the elevator
+	for (int j = previous_floor+1; j < 4; j++){ //Check if there are any orders above the elevator
 		if (qm_get_order_in_Q_up(j) || qm_get_order_in_Q_down(j) || qm_get_order_in_Q_command(j)) {
 			mm_set_motor_dir(DIRN_UP);
 			smth_in_Q_over = 1;
@@ -371,7 +367,7 @@ void case_dirn_up_between_floors() {
 			break;
 		}
 	}
-	if (smth_in_Q_over == 0){ //Know there is a order over the elev 
+	if (smth_in_Q_over == 0){ // There were no orders above
 		mm_set_motor_dir(DIRN_DOWN);
 		mm_set_last_moving_motor_dir(DIRN_DOWN);
 		 
@@ -380,9 +376,9 @@ void case_dirn_up_between_floors() {
 }
 
 void case_dirn_down_between_floors(){
-	int smth_in_Q_under = 0; //variabel; something in the 
+	int smth_in_Q_under = 0; //variable; keeps track of if there are any orders in any of the queues below
 
-	for (int i = previous_floor-1; i > -1; i--){//Check if it is some orders under the elevator
+	for (int i = previous_floor-1; i > -1; i--){ //Check if there are any orders below the elevator
 		if (qm_get_order_in_Q_up(i) || qm_get_order_in_Q_down(i) || qm_get_order_in_Q_command(i)) {
 			mm_set_motor_dir(DIRN_DOWN);
 			smth_in_Q_under = 1;
@@ -390,7 +386,7 @@ void case_dirn_down_between_floors(){
 			break;
 		}
 	}
-	if (smth_in_Q_under == 0) {//Know there is a order over the elev 
+	if (smth_in_Q_under == 0) { // There were no orders below
 		mm_set_motor_dir(DIRN_UP);
 		mm_set_last_moving_motor_dir(DIRN_UP);
 		
